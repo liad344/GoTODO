@@ -2,9 +2,9 @@ package cmd
 
 type notificationCfg struct {
 	active bool
-	img string
-	title string
-	content string
+	img    string
+	title  string
+	msg    string
 	// can add sound w/ go-toast
 }
 
@@ -15,4 +15,3 @@ type Cfg struct {
 	//OneDrive onedriveCfg
 	//Other output adapters..
 }
-

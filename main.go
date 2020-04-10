@@ -1,7 +1,9 @@
 package main
 
-import "liad/GoTODO/cmd"
+import (
+	"GoTODO/cmd"
+)
 
-func main(){
-		cmd.Execute()
+func main() {
+	cmd.Execute()
 }
