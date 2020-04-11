@@ -1,16 +1,16 @@
 package Parser
 
-import "strings"
-
-func goParser(line string, td todo) {
-	if strings.Contains(line, "func") {
-		td.funcname = getFuncName(line)
-	}
-
+func goParser(line string, td Filetd) {
+	//if strings.Contains(line, "func") {
+	//	td.funcname = getFuncName(line)
+	//}
 }
 
-func getFuncName(line string) string {
-
+func GetFuncName(line string) string {
+	return "VeryRealFuncName"
+}
+func IsInFunc(line string) bool {
+	return true
 }
 
 func jsParser() {

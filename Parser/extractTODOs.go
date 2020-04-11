@@ -6,77 +6,93 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 )
 
-type todos struct {
-	td []todo
+type AllTodos struct {
+	td []Filetd
 }
 
-type todo struct {
-	line     []string
+type Filetd struct {
 	filename string
+	td       []todo
+}
+type todo struct {
+	isInFunc bool
 	funcname string
-	ok       bool
+	todo     string
 }
 
-func parse(p string) (tds todos) {
+func Parse(p string) (tds AllTodos) {
+	if p == "" {
+		p, _ = os.Getwd()
+		log.Info(p)
+		//todo: error handling
+	}
 	files, err := ioutil.ReadDir(p)
 	if err != nil {
 		log.Error(err)
 	}
 	for _, f := range files {
 		if f.IsDir() {
-			parse(path.Join(p, f.Name()))
+			if f.Name() == ".idea" || f.Name() == ".git" {
+				continue
+			}
+			Parse(path.Join(p, f.Name()))
 		} else {
-			parseFile(path.Join(p, f.Name()), tds)
+			//log.Info("Parsing files: " , f.Name())
+			parseFile(path.Join(p, f.Name()), &tds)
 		}
 	}
 	return tds
 }
 
-func parseFile(p string, tds todos) {
-	td := todo{}
-	td.ok = true
+func parseFile(p string, tds *AllTodos) {
+	Ftd := Filetd{}
 	f, err := os.Open(p)
 	if err != nil {
 		log.Error(err)
 	}
 	defer f.Close()
+
 	scanner := bufio.NewScanner(f)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		s := scanner.Text()
-		if strings.Contains(s, "func") {
-			td.funcname = getFuncName(s)
-			td.ok = false
-		}
-		//Assume togo is in current func
-		//
-		if FindTODOs(s, td) {
-			if strings.Contains(s, "func") {
-				td.funcname = getFuncName(s)
-			}
-		} else {
-			td.ok = false
-		}
+		FindTODOs(s, Ftd)
+		//todo: fix logic for correct func name
+
 	}
-	td.filename = f.Name()
-	tds.td = append(tds.td, td)
+	Ftd.filename = f.Name()
+	tds.td = append(tds.td, Ftd)
 }
 
-func FindTODOs(line string, td todo) bool {
-	if !strings.Contains(line, "TODO") {
+func FindTODOs(line string, Ftd Filetd) bool {
+	td := todo{}
+	ok := Search(line)
+	if !ok {
 		return false
 	}
-	if !strings.Contains(line, "TODO:") {
-		return false
-	}
-	if !strings.Contains(line, "//TODO:") {
-		return false
-	}
-	td.line = append(td.line, line)
+	td.todo = line
+	//todo isInFunc
+	td.isInFunc = IsInFunc(line)
+	td.funcname = GetFuncName(line)
+	Ftd.td = append(Ftd.td, td)
 	return true
 
-	//TODO: Better search for TODOs
+	//TODO: Better search for TODOs - first run did not work becuase of it
+}
+
+func Search(line string) bool {
+	line = strings.ToLower(line)
+	if !strings.Contains(line, "//") {
+		return false
+	}
+	//todo improve regex
+	b, err := regexp.MatchString(".*todo.*", line)
+	if err != nil {
+		log.Error(err)
+	}
+	return b
 }

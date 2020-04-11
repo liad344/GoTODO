@@ -7,6 +7,7 @@ require (
 	github.com/gomarkdown/markdown v0.0.0-20200316172748-fd1f3374857d
 	github.com/romanyx/mdopen v1.1.2
 	github.com/sirupsen/logrus v1.5.0
+	github.com/spf13/cast v1.3.0
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/viper v1.6.3
 )
