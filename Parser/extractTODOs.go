@@ -24,10 +24,11 @@ type todo struct {
 	todo     string
 }
 
-func Parse(p string) (tds AllTodos) {
+var Tds = &AllTodos{}
+
+func Parse(p string) {
 	if p == "" {
 		p, _ = os.Getwd()
-		log.Info(p)
 		//todo: error handling
 	}
 	files, err := ioutil.ReadDir(p)
@@ -42,10 +43,11 @@ func Parse(p string) (tds AllTodos) {
 			Parse(path.Join(p, f.Name()))
 		} else {
 			//log.Info("Parsing files: " , f.Name())
-			parseFile(path.Join(p, f.Name()), &tds)
+			if f.Name() == "extractTODOs.go" {
+				parseFile(path.Join(p, f.Name()), Tds)
+			}
 		}
 	}
-	return tds
 }
 
 func parseFile(p string, tds *AllTodos) {
@@ -60,21 +62,22 @@ func parseFile(p string, tds *AllTodos) {
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		s := scanner.Text()
-		FindTODOs(s, Ftd)
+		FindTODOs(s, &Ftd)
 		//todo: fix logic for correct func name
 
 	}
-	Ftd.filename = f.Name()
+	stat, _ := f.Stat()
+	Ftd.filename = stat.Name()
 	tds.td = append(tds.td, Ftd)
 }
 
-func FindTODOs(line string, Ftd Filetd) bool {
+func FindTODOs(line string, Ftd *Filetd) bool {
 	td := todo{}
 	ok := Search(line)
 	if !ok {
 		return false
 	}
-	td.todo = line
+	td.todo = strings.ReplaceAll(line, "//", "")
 	//todo isInFunc
 	td.isInFunc = IsInFunc(line)
 	td.funcname = GetFuncName(line)

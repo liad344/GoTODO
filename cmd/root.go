@@ -37,7 +37,8 @@ func notification(cmd *cobra.Command, args []string) {
 
 func todo(cmd *cobra.Command, args []string) {
 	log.Info("Started todo")
-	Parser.TODOsToMD(Parser.Parse(path))
+	Parser.Parse(path)
+	Parser.TODOsToMD()
 }
 
 func init() {

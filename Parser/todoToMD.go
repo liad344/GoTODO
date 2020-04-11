@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func TODOsToMD(tds AllTodos) {
-	f := strings.NewReader(todosToMD(tds))
+func TODOsToMD() {
+	f := strings.NewReader(todosToMD(*Tds))
 	opnr := mdopen.New()
 	if err := opnr.Open(f); err != nil {
 		log.Fatal(err)
@@ -15,16 +15,12 @@ func TODOsToMD(tds AllTodos) {
 }
 
 func todosToMD(tds AllTodos) string {
-	log.Info(tds)
 	md := ""
-	for _, Ftd := range tds.td {
-		for _, td := range Ftd.td {
-			if td.isInFunc {
-				md += "#" + td.funcname
-			}
-			md += "-	" + td.todo + "\n"
+	for _, td := range tds.td[0].td {
+		if td.isInFunc {
+			md += "**" + td.funcname + "**" + "<br/>"
 		}
+		md += "- " + td.todo + "<br/>"
 	}
-
 	return md
 }
