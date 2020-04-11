@@ -16,12 +16,12 @@ func parse(p string) {
 		if f.IsDir() {
 			parse(path.Join(p, f.Name()))
 		} else {
-			parseFile(f)
+			parseFile(path.Join(p, f.Name()))
 		}
 	}
 
 }
 
-func parseFile(f os.FileInfo) {
+func parseFile(p string) {
 
 }
