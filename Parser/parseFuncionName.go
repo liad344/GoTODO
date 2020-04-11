@@ -1,5 +1,10 @@
 package Parser
 
+import (
+	"math/rand"
+	"strconv"
+)
+
 func goParser(line string, td Filetd) {
 	//if strings.Contains(line, "func") {
 	//	td.funcname = getFuncName(line)
@@ -7,7 +12,9 @@ func goParser(line string, td Filetd) {
 }
 
 func GetFuncName(line string) string {
-	return "VeryRealFuncName"
+	i := rand.Int63n(3)
+	return "VeryRealFunctionName" + strconv.Itoa(int(i))
+
 }
 func IsInFunc(line string) bool {
 	return true

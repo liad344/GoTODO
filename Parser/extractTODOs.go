@@ -42,10 +42,10 @@ func Parse(p string) {
 			}
 			Parse(path.Join(p, f.Name()))
 		} else {
-			//log.Info("Parsing files: " , f.Name())
-			if f.Name() == "extractTODOs.go" {
-				parseFile(path.Join(p, f.Name()), Tds)
+			if f.Name() == "GoTODO.exe" {
+				continue
 			}
+			parseFile(path.Join(p, f.Name()), Tds)
 		}
 	}
 }

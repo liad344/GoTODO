@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+const SPACE = " "
+
 func TODOsToMD() {
 	f := strings.NewReader(todosToMD(*Tds))
 	opnr := mdopen.New()
@@ -16,11 +18,21 @@ func TODOsToMD() {
 
 func todosToMD(tds AllTodos) string {
 	md := ""
-	for _, td := range tds.td[0].td {
-		if td.isInFunc {
-			md += "**" + td.funcname + "**" + "<br/>"
+	lastFunc := ""
+	for _, ftd := range tds.td {
+		md += "**" + ftd.filename + "**" + "<br/>"
+		if len(ftd.td) == 0 {
+			md += SPACE + "No todos here <br/>"
+			continue
 		}
-		md += "- " + td.todo + "<br/>"
+		for _, td := range ftd.td {
+			if td.isInFunc && lastFunc != td.funcname {
+				lastFunc = td.funcname
+				md += "_" + td.funcname + "_" + "<br/>"
+			}
+			md += SPACE
+			md += "```" + td.todo + "```" + "<br/>"
+		}
 	}
 	return md
 }
