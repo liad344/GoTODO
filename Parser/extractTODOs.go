@@ -80,7 +80,8 @@ func FindTODOs(line string, Ftd *Filetd) bool {
 	td.todo = strings.ReplaceAll(line, "//", "")
 	//todo isInFunc
 	td.isInFunc = IsInFunc(line)
-	td.funcname = GetFuncName(line)
+	td.funcname = GetFuncName(line, "func")
+	//todo: change func for different programming languages like js = function
 	Ftd.td = append(Ftd.td, td)
 	return true
 
@@ -92,10 +93,6 @@ func Search(line string) bool {
 	if !strings.Contains(line, "//") {
 		return false
 	}
-	//todo improve regex
-	b, err := regexp.MatchString(".*todo.*", line)
-	if err != nil {
-		log.Error(err)
-	}
+	b, _ := regexp.MatchString(".*//todo*.", line)
 	return b
 }

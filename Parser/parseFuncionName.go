@@ -1,8 +1,8 @@
 package Parser
 
 import (
-	"math/rand"
-	"strconv"
+	log "github.com/sirupsen/logrus"
+	"regexp"
 )
 
 func goParser(line string, td Filetd) {
@@ -11,9 +11,16 @@ func goParser(line string, td Filetd) {
 	//}
 }
 
-func GetFuncName(line string) string {
-	i := rand.Int63n(3)
-	return "VeryRealFunctionName" + strconv.Itoa(int(i))
+// dkd func dsk
+func GetFuncName(line, function string) (name string) {
+	r := function + "[[:space:]]"
+	reg := regexp.MustCompile(r)
+	loc := reg.FindStringIndex(line)
+	if loc == nil {
+		return ""
+	}
+	log.Info("name extraxted ", name, " from line ", line)
+	return name
 
 }
 func IsInFunc(line string) bool {
