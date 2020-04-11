@@ -1,13 +1,11 @@
 package cmd
 
 import (
+	"GoTODO/Parser"
 	"fmt"
-	"github.com/romanyx/mdopen"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
-	"strings"
 )
 
 var (
@@ -24,6 +22,7 @@ var (
 		Run:     notification,
 	}
 	cfgPath string
+	path    string
 	n       = notificationCfg{}
 )
 
@@ -37,18 +36,15 @@ func notification(cmd *cobra.Command, args []string) {
 
 func todo(cmd *cobra.Command, args []string) {
 	fmt.Println("Started todo")
-	f := strings.NewReader("# Hello from markdown")
-
-	opnr := mdopen.New()
-	if err := opnr.Open(f); err != nil {
-		log.Fatal(err)
-	}
+	Parser.TODOsToMD(path)
 }
 
 func init() {
 	//cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgPath, "config", "", "config file (default is $HOME/.cobra.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&cfgPath, "config", "c", "", "config file (default is $HOME/.cobra.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&path, "config", "p", "", "config file (default is $HOME/.cobra.yaml)")
+
 	notificationCmdFlags()
 
 }
