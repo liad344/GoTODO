@@ -2,9 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/romanyx/mdopen"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
+	"strings"
 )
 
 var (
@@ -34,6 +37,12 @@ func notification(cmd *cobra.Command, args []string) {
 
 func todo(cmd *cobra.Command, args []string) {
 	fmt.Println("Started todo")
+	f := strings.NewReader("# Hello from markdown")
+
+	opnr := mdopen.New()
+	if err := opnr.Open(f); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func init() {
