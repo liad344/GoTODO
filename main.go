@@ -1,9 +1,9 @@
 package main
 
 import (
-	"GoTODO/cmd"
+	"GoTODO/Cmd"
 )
 
 func main() {
-	cmd.Execute()
+	Cmd.Execute()
 }

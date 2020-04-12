@@ -1,4 +1,4 @@
-package cmd
+package Cmd
 
 type notificationCfg struct {
 	active bool

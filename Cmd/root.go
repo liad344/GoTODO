@@ -1,4 +1,4 @@
-package cmd
+package Cmd
 
 import (
 	"GoTODO/Parser"
@@ -37,8 +37,10 @@ func notification(cmd *cobra.Command, args []string) {
 
 func todo(cmd *cobra.Command, args []string) {
 	log.Info("Started todo")
-	Parser.Parse(path)
-	Parser.TODOsToMD()
+	p := &Parser.Dir{}
+	Parser.Parse(path, p)
+	log.Info(p.Files)
+	//Parser.TODOsToMD()
 }
 
 func init() {
