@@ -39,7 +39,7 @@ func todo(cmd *cobra.Command, args []string) {
 	log.Info("Started todo")
 	p := &Parser.Dir{}
 	Parser.Parse(path, p)
-	log.Info(p.Files)
+	log.Info(p.Dirs[2].Files[0])
 	//Parser.TODOsToMD()
 }
 

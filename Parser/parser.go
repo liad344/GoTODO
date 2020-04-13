@@ -1,7 +1,7 @@
 package Parser
 
 type function struct {
-	name  map[string]int
+	name  string
 	index []int
 }
 type Dir struct {
@@ -13,8 +13,9 @@ type Dir struct {
 type Indexed struct {
 	Name      string
 	Extension string
-	len       int
-	f         []function
+	// todo filed shoud remain unexported?
+	len int
+	f   []function
 	//i 		  []Interfaces?
 	//c 		  []Classes?
 	tds []todo
@@ -31,8 +32,10 @@ var (
 )
 
 const (
-	TODORegex   = ".*todo*."
-	GOFUNCRegex = "func" //todo fix
-	JSFUNCREGEX = "function"
-	PYFUNCREGEX = "def"
+	TODORegex     = ".*todo*."
+	GOFUNCRegex   = "func" //todo fix
+	JSFUNCREGEX   = "function"
+	PYFUNCREGEX   = "def"
+	OPEN_BRACKET  = "{"
+	CLOSE_BRACKET = "}"
 )

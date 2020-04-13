@@ -1,6 +1,7 @@
 package Parser
 
 import (
+	"bufio"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
@@ -30,12 +31,9 @@ func Parse(p string, curdir *Dir) {
 	}
 	return
 }
-func getName(name string) (i Indexed) {
+func splitName(name string) (string, string) {
 	s := strings.Split(name, ".")
-	i.Name = s[0]
-	i.Extension = s[1]
-	// todo filed shoud remain unexported?
-	return i
+	return s[0], s[1]
 }
 
 func getFiles(p string) (string, []os.FileInfo) {
@@ -58,14 +56,117 @@ func include(f os.FileInfo) bool {
 	//todo ADD this to config
 }
 
-func parseFile(p string) (ix Indexed) {
+func parseFile(p string) (i Indexed) {
 	f, err := os.Open(p)
+	stat, _ := f.Stat()
 	if err != nil {
 		log.Error(err)
 	}
-	stat, _ := f.Stat()
-	ix = getName(stat.Name())
-	return ix
+	fnNum = 0
+	if brackets != 0 {
+		log.Error("Last file ended without closing bracket")
+		brackets = 0
+	}
+	i.Name, i.Extension = splitName(stat.Name())
+	name = i.Name
+	i.f, i.len, i.tds = getFuncions(f, i.Extension)
+	return i
+}
+
+var name string
+
+func getFuncions(file *os.File, extension string) (f []function, len int, tds []todo) {
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	pf := funcRegex(extension)
+	if pf == "" {
+		for i := 1; scanner.Scan(); i++ {
+			ln := scanner.Text()
+			if regex(ln, TODORegex) > 0 {
+				tds = append(tds, parsetodo(ln))
+			}
+		}
+	} else {
+		for i := 1; scanner.Scan(); i++ {
+			ln := scanner.Text()
+			if regex(ln, TODORegex) > 0 {
+				tds = append(tds, parsetodo(ln))
+			}
+			parsefunc(ln, &f, pf, i)
+		}
+	}
+	//todo it's ugly but then if/else for pf is checked once per file and not every line
+	return f, len, tds
+}
+
+func parsetodo(ln string) (t todo) {
+	t.todo = strings.ReplaceAll(ln, "//", "")
+	return t
+}
+
+var brackets int
+var fnNum int
+
+func parsefunc(ln string, functions *[]function, functype string, i int) {
+	f := function{
+		name:  "",
+		index: make([]int, 2),
+	}
+
+	if regex(ln, functype) > 0 {
+		f.name = "!!!" + ln + "!!!"
+		f.index[0] = i
+		*functions = append(*functions, f)
+		fnNum++ //Will be th num of the next function to come
+		//brackets must be zero?
+	}
+	//if name == "root"{
+	//	log.Info("brackets before " , brackets)
+	//	log.Info("i " , i)
+	//}
+	lnHasBracket(ln)
+	//if name == "root"{
+	//	log.Info("brackets after " , brackets)
+	//	log.Info(i , ") " , ln)
+	//}
+	if brackets == 0 && fnNum > 0 {
+		(*functions)[fnNum-1].index[1] = i
+	}
+
+}
+
+func lnHasBracket(ln string) {
+	brackets += regex(ln, OPEN_BRACKET)
+	brackets -= regex(ln, CLOSE_BRACKET)
+}
+func a() {
+	go func() {
+
+	}()
+}
+func (t todo) b() {
+}
+
+func funcRegex(extension string) string {
+	switch extension {
+	case "go":
+		return GOFUNCRegex
+	case "js":
+		return JSFUNCREGEX
+	case "py":
+		return PYFUNCREGEX
+	}
+	return ""
+}
+
+func regex(text, regex string) int {
+	r := regexp.MustCompile(regex)
+	all := r.FindAllString(text, -1)
+	if all != nil {
+		return len(all)
+	}
+	return 0
 }
 
 func indexFile(f *os.File) Indexed {
