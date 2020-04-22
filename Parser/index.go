@@ -12,7 +12,7 @@ import (
 
 var i int
 
-func Parse(p string, curdir *Dir) {
+func IndexFiles(p string, curdir *Dir) {
 	p, files := getFiles(p)
 	//todo add project name
 	for _, f := range files {
@@ -23,13 +23,30 @@ func Parse(p string, curdir *Dir) {
 			cd := Dir{
 				Name: f.Name(),
 			}
-			Parse(path.Join(p, f.Name()), &cd)
+			IndexFiles(path.Join(p, f.Name()), &cd)
 			curdir.Dirs = append(curdir.Dirs, cd)
 		} else {
 			curdir.Files = append(curdir.Files, parseFile(path.Join(p, f.Name())))
 		}
 	}
 	return
+}
+func Parsetd(d *Dir) {
+	for _, dir := range d.Dirs {
+		if len(dir.Dirs) != 0 {
+			Parsetd(&dir)
+		}
+		for _, file := range dir.Files {
+			for _, td := range file.tds {
+				for _, fn := range file.f {
+					if fn.index[0] <= td.index && fn.index[1] >= td.index {
+						td.isInFunc = true
+						td.fn = fn
+					}
+				}
+			}
+		}
+	}
 }
 func splitName(name string) (string, string) {
 	s := strings.Split(name, ".")
@@ -64,6 +81,8 @@ func parseFile(p string) (i Indexed) {
 	}
 	fnNum = 0
 	if brackets != 0 {
+		log.Info(brackets)
+		log.Info("Current file ", stat.Name())
 		log.Error("Last file ended without closing bracket")
 		brackets = 0
 	}
@@ -84,14 +103,14 @@ func getFuncions(file *os.File, extension string) (f []function, len int, tds []
 		for i := 1; scanner.Scan(); i++ {
 			ln := scanner.Text()
 			if regex(ln, TODORegex) > 0 {
-				tds = append(tds, parsetodo(ln))
+				tds = append(tds, parsetodo(ln, i))
 			}
 		}
 	} else {
 		for i := 1; scanner.Scan(); i++ {
 			ln := scanner.Text()
 			if regex(ln, TODORegex) > 0 {
-				tds = append(tds, parsetodo(ln))
+				tds = append(tds, parsetodo(ln, i))
 			}
 			parsefunc(ln, &f, pf, i)
 		}
@@ -100,8 +119,9 @@ func getFuncions(file *os.File, extension string) (f []function, len int, tds []
 	return f, len, tds
 }
 
-func parsetodo(ln string) (t todo) {
+func parsetodo(ln string, i int) (t todo) {
 	t.todo = strings.ReplaceAll(ln, "//", "")
+	t.index = i
 	return t
 }
 
@@ -113,20 +133,20 @@ func parsefunc(ln string, functions *[]function, functype string, i int) {
 		name:  "",
 		index: make([]int, 2),
 	}
-
+	//todo makes an error if string has brackets {} and are non closing its counting it it
 	if regex(ln, functype) > 0 {
-		f.name = "!!!" + ln + "!!!"
+		f.name = parsefuncName(ln)
 		f.index[0] = i
 		*functions = append(*functions, f)
 		fnNum++ //Will be th num of the next function to come
 		//brackets must be zero?
 	}
-	//if name == "root"{
+	//if name == "index"{
 	//	log.Info("brackets before " , brackets)
 	//	log.Info("i " , i)
 	//}
 	lnHasBracket(ln)
-	//if name == "root"{
+	//if name == "index"{
 	//	log.Info("brackets after " , brackets)
 	//	log.Info(i , ") " , ln)
 	//}
@@ -136,15 +156,20 @@ func parsefunc(ln string, functions *[]function, functype string, i int) {
 
 }
 
+func parsefuncName(ln string) (name string) {
+	// We are getting something like this func[[:space:]]Name(args)
+	// Or w/ receiver  func[[:space:]](r *receiver)Name(args)
+	name = strings.Trim(ln, "func ")
+	name = name[:strings.Index(name, "(")]
+	//log.Info(name)
+	return name
+}
+
 func lnHasBracket(ln string) {
 	brackets += regex(ln, OPEN_BRACKET)
 	brackets -= regex(ln, CLOSE_BRACKET)
 }
-func a() {
-	go func() {
 
-	}()
-}
 func (t todo) b() {
 }
 
@@ -173,31 +198,4 @@ func indexFile(f *os.File) Indexed {
 	stat, _ := f.Stat()
 	defer f.Close()
 	return Indexed{Name: stat.Name()}
-}
-
-//
-//func FindTODOs(line string, Ftd *Filetd) bool {
-//	td := todo{}
-//	ok := Search(line)
-//	if !ok {
-//		return false
-//	}
-//	td.todo = strings.ReplaceAll(line, "//", "")
-//	//todo isInFunc
-//	//td.isInFunc = IsInFunc(line)
-//	//td.funcname = GetFuncName(line, "func")
-//	//todo: change func for different programming languages like js = function
-//	//Ftd.td = append(Ftd.td, td)
-//	return true
-//
-//	//TODO: Better search for TODOs - first run did not work becuase of it
-//}
-
-func Search(line string) bool {
-	line = strings.ToLower(line)
-	if !strings.Contains(line, "//") {
-		return false
-	}
-	b, _ := regexp.MatchString(TODORegex, line)
-	return b
 }

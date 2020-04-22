@@ -25,6 +25,7 @@ type todo struct {
 	isInFunc bool
 	fn       function
 	todo     string
+	index    int
 }
 
 var (
@@ -33,7 +34,7 @@ var (
 
 const (
 	TODORegex     = ".*todo*."
-	GOFUNCRegex   = "func[[:space:]].*\\(/*\\)" //todo fix to work with receivers?
+	GOFUNCRegex   = "func[[:space:]].*\\(.*\\)" //todo fix to work with receivers?
 	JSFUNCREGEX   = "function"
 	PYFUNCREGEX   = "def"
 	OPEN_BRACKET  = "{"
