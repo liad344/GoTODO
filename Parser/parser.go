@@ -33,7 +33,7 @@ var (
 
 const (
 	TODORegex     = ".*todo*."
-	GOFUNCRegex   = "func" //todo fix
+	GOFUNCRegex   = "func[[:space:]].*\\(/*\\)" //todo fix to work with receivers?
 	JSFUNCREGEX   = "function"
 	PYFUNCREGEX   = "def"
 	OPEN_BRACKET  = "{"
