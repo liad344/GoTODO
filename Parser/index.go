@@ -24,7 +24,7 @@ func IndexFiles(p string, curdir *Dir) {
 				Name: f.Name(),
 			}
 			IndexFiles(path.Join(p, f.Name()), &cd)
-			curdir.Dirs = append(curdir.Dirs, cd)
+			curdir.Dirs = append(curdir.Dirs, &cd)
 		} else {
 			curdir.Files = append(curdir.Files, parseFile(path.Join(p, f.Name())))
 		}
@@ -34,20 +34,26 @@ func IndexFiles(p string, curdir *Dir) {
 func Parsetd(d *Dir) {
 	for _, dir := range d.Dirs {
 		if len(dir.Dirs) != 0 {
-			Parsetd(&dir)
+			Parsetd(dir)
 		}
-		for _, file := range dir.Files {
-			for _, td := range file.tds {
-				for _, fn := range file.f {
-					if fn.index[0] <= td.index && fn.index[1] >= td.index {
-						td.isInFunc = true
-						td.fn = fn
-					}
+		IndexTodos(dir)
+	}
+	IndexTodos(d)
+}
+
+func IndexTodos(dir *Dir) {
+	for _, file := range dir.Files {
+		for _, td := range file.tds {
+			for _, fn := range file.f {
+				if fn.index[0] <= td.index && fn.index[1] >= td.index {
+					td.isInFunc = true
+					td.fn = fn
 				}
 			}
 		}
 	}
 }
+
 func splitName(name string) (string, string) {
 	s := strings.Split(name, ".")
 	return s[0], s[1]
@@ -73,7 +79,8 @@ func include(f os.FileInfo) bool {
 	//todo ADD this to config
 }
 
-func parseFile(p string) (i Indexed) {
+func parseFile(p string) (i *Indexed) {
+	i = &Indexed{}
 	f, err := os.Open(p)
 	stat, _ := f.Stat()
 	if err != nil {
@@ -94,7 +101,7 @@ func parseFile(p string) (i Indexed) {
 
 var name string
 
-func getFuncions(file *os.File, extension string) (f []function, len int, tds []todo) {
+func getFuncions(file *os.File, extension string) (f []*function, len int, tds []*todo) {
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 
@@ -119,16 +126,21 @@ func getFuncions(file *os.File, extension string) (f []function, len int, tds []
 	return f, len, tds
 }
 
-func parsetodo(ln string, i int) (t todo) {
-	t.todo = strings.ReplaceAll(ln, "//", "")
+func parsetodo(ln string, i int) (t *todo) {
+	t = &todo{}
+	t.todo = parsetodoName(ln)
+	t.isInFunc = false
 	t.index = i
 	return t
+}
+func parsetodoName(ln string) (name string) {
+	return strings.ReplaceAll(ln[strings.Index(ln, "//"):], "//", "")
 }
 
 var brackets int
 var fnNum int
 
-func parsefunc(ln string, functions *[]function, functype string, i int) {
+func parsefunc(ln string, functions *[]*function, functype string, i int) {
 	f := function{
 		name:  "",
 		index: make([]int, 2),
@@ -137,7 +149,7 @@ func parsefunc(ln string, functions *[]function, functype string, i int) {
 	if regex(ln, functype) > 0 {
 		f.name = parsefuncName(ln)
 		f.index[0] = i
-		*functions = append(*functions, f)
+		*functions = append(*functions, &f)
 		fnNum++ //Will be th num of the next function to come
 		//brackets must be zero?
 	}
