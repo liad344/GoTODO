@@ -25,6 +25,7 @@ func TODOsToMD(d *Dir) {
 	f := strings.NewReader(todosToMD(d))
 
 	opnr := mdopen.New()
+	opnr.Open(f)
 	if err := opnr.Open(f); err != nil {
 		log.Fatal(err)
 	}
@@ -39,13 +40,16 @@ func todosToMD(d *Dir) string {
 		}
 		md += "# " + dir.Name + "\n"
 		for _, file := range dir.Files {
-			md += "### " + file.Name + "\n"
+			md += "### " + "FILE: " + file.Name + "\n"
+			if len(file.tds) == 0 {
+				md += "```" + "	NO TODOs HERE" + "```" + "\n\n"
+			}
 			for _, td := range file.tds {
 				if td.isInFunc {
-					md += "_" + td.fn.name + "_" + "\n\n"
+					md += "##### " + "	FUNC " + td.fn.name + "\n\n"
 				}
 				md += SPACE
-				md += "```" + td.todo + "```" + "\n\n"
+				md += "```" + "	TODO: " + td.todo + "```" + "\n\n"
 			}
 		}
 	}
