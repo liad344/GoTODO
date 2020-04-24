@@ -1,13 +1,16 @@
 package Parser
 
-import "regexp"
+import (
+	log "github.com/sirupsen/logrus"
+	"regexp"
+)
 
 // js example
 // function a(bla){}
 // eran todo
 
 const ( // eran todo
-	TODORegex     = ".*\\/\\/.*todo[\\[:space:][](){}*&^%%$#@!~`?.,><:|;\"\\/\\\\]"
+	TODORegex     = ".*\\/\\/.*todo[[:space:],.`';!@#$%^&*=+:\\[\\]{}\\(\\)<>?]"
 	GOFUNCRegex   = "func[[:space:]]*\\(?.*\\)?[[:space:]]*.*[[:space:]]*\\(.*\\)"
 	JSFUNCREGEX   = "function"
 	PYFUNCREGEX   = "def"
@@ -30,6 +33,9 @@ func funcRegex(extension string) string {
 func regex(text, regex string) int {
 	r := regexp.MustCompile(regex)
 	all := r.FindAllString(text, -1)
+	if regex == TODORegex {
+		log.Info("TODO ", text)
+	}
 	if all != nil {
 		return len(all)
 	}

@@ -39,6 +39,7 @@ func todosToMD(d *Dir) string {
 		}
 		md += "# " + dir.Name + "\n"
 		for _, file := range dir.Files {
+			md += "### " + file.Name + "\n"
 			for _, td := range file.tds {
 				if td.isInFunc {
 					md += "_" + td.fn.name + "_" + "\n\n"
