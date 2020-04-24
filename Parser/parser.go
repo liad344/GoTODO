@@ -36,7 +36,7 @@ var (
 // function a(bla){}
 // eran todo
 const ( // eran todo
-	TODORegex     = ".*\\/\\/.*todo"
+	TODORegex     = ".*\\/\\/.*todo[\\][[:space:]()*&^%%$#@!~`?\\/><:\".,{}\\\\|;]"
 	GOFUNCRegex   = "func[[:space:]].*\\(.*\\)" //todo fix to work with receivers?
 	JSFUNCREGEX   = "function"
 	PYFUNCREGEX   = "def"
