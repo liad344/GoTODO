@@ -9,7 +9,13 @@ import (
 	"strings"
 )
 
-var i int
+var (
+	i        int
+	brackets int
+	fnNum    int
+	name     string
+	//Pretty sure most of them are used for debugging
+)
 
 func IndexFiles(p string, curdir *Dir) {
 	p, files := getFiles(p)
@@ -25,6 +31,8 @@ func IndexFiles(p string, curdir *Dir) {
 			IndexFiles(path.Join(p, f.Name()), &cd)
 			curdir.Dirs = append(curdir.Dirs, &cd)
 		} else {
+			//Take most of the time
+			//Need to separate parseFile from appending
 			curdir.Files = append(curdir.Files, parseFile(path.Join(p, f.Name())))
 		}
 	}
@@ -98,8 +106,6 @@ func parseFile(p string) (i *Indexed) {
 	return i
 }
 
-var name string
-
 func getFuncions(file *os.File, extension string) (f []*function, len int, tds []*todo) {
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
@@ -135,9 +141,6 @@ func parsetodo(ln string, i int) (t *todo) {
 func parsetodoName(ln string) (name string) {
 	return strings.ReplaceAll(ln[strings.Index(ln, "//"):], "//", "")
 }
-
-var brackets int
-var fnNum int
 
 func parsefunc(ln string, functions *[]*function, functype string, i int) {
 	f := function{

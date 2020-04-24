@@ -3,7 +3,6 @@ package Cmd
 import (
 	"GoTODO/Parser"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -18,7 +17,7 @@ var (
 	}
 	notificationCmd = &cobra.Command{
 		Use:     "notification",
-		Aliases: []string{"notifaction"},
+		Aliases: []string{"notifaction", "n", "notify"},
 		Short:   "Will use os notification",
 		Run:     notification,
 	}
@@ -36,7 +35,6 @@ func notification(cmd *cobra.Command, args []string) {
 }
 
 func todo(cmd *cobra.Command, args []string) {
-	log.Info("Started todo")
 	p := &Parser.Dir{}
 	Parser.IndexFiles(path, p)
 	Parser.Parsetd(p)
