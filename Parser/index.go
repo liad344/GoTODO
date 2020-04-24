@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"regexp"
 	"strings"
 )
 
@@ -180,34 +179,4 @@ func parsefuncName(ln string) (name string) {
 func lnHasBracket(ln string) {
 	brackets += regex(ln, OPEN_BRACKET)
 	brackets -= regex(ln, CLOSE_BRACKET)
-}
-
-func (t todo) b() {
-}
-
-func funcRegex(extension string) string {
-	switch extension {
-	case "go":
-		return GOFUNCRegex
-	case "js":
-		return JSFUNCREGEX
-	case "py":
-		return PYFUNCREGEX
-	}
-	return ""
-}
-
-func regex(text, regex string) int {
-	r := regexp.MustCompile(regex)
-	all := r.FindAllString(text, -1)
-	if all != nil {
-		return len(all)
-	}
-	return 0
-}
-
-func indexFile(f *os.File) Indexed {
-	stat, _ := f.Stat()
-	defer f.Close()
-	return Indexed{Name: stat.Name()}
 }

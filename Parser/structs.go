@@ -27,24 +27,3 @@ type todo struct {
 	todo     string
 	index    int
 }
-
-var (
-	Project Dir
-)
-
-func (d *Dir) abc() {
-
-}
-
-// js example
-// function a(bla){}
-// eran todo
-
-const ( // eran todo
-	TODORegex     = ".*\\/\\/.*todo[\\[:space:][](){}*&^%%$#@!~`?.,><:|;\"\\/\\\\]"
-	GOFUNCRegex   = "func[[:space:]]*\\(?.*\\)?[[:space:]]*.*[[:space:]]*\\(.*\\)"
-	JSFUNCREGEX   = "function"
-	PYFUNCREGEX   = "def"
-	OPEN_BRACKET  = "{"
-	CLOSE_BRACKET = "}"
-)
